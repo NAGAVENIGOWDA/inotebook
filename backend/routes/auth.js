@@ -9,6 +9,7 @@ const fetchuser = require("../middleware/fetchuser");
 const JWT_SECRET = "thisissecret";
 
 //Route-1 -createUser
+let success=false;
 router.post(
   "/createuser",
   [
@@ -19,7 +20,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
 
     try {
@@ -27,7 +28,7 @@ router.post(
       if (user) {
         return res
           .status(400)
-          .json({ error: "sorry user with this email alraedy exists" });
+          .json({success, error: "sorry user with this email alraedy exists" });
       }
 
       //User is the schema , User.craete :This function is used to create a new user record in the database based on the provided data
@@ -59,6 +60,8 @@ router.post(
         },
       };
       var jwtData = jwt.sign(data, JWT_SECRET); //getting token
+      success=true;
+      res.json({success,jwtData});
 
       // var decoded = jwt.verify(jwtData, JWT_SECRET) ---verify
       // res.json(decoded);
@@ -70,7 +73,7 @@ router.post(
 );
 
 //login authentication -route 2
-
+  
 router.post(
   "/login",
   [
@@ -81,7 +84,7 @@ router.post(
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -90,14 +93,15 @@ router.post(
       if (!user) {
         return res
           .status(400)
-          .json({ error: "please login with correct credentials" });
+          .json({ success,error: "please login with correct credentials" });
       }
 
       const passwordCompare = await bcrypt.compare(password, user.password);
       if (!passwordCompare) {
+      
         return res
           .status(400)
-          .json({ error: "please login with correct credentials" });
+          .json({ success,error: "please login with correct credentials" });
       }
       //if email and password match - returning a token
       const data = {
@@ -106,10 +110,12 @@ router.post(
         },
       };
       var jwtData = jwt.sign(data, JWT_SECRET);
-      res.json(jwtData);
+      success=true;
+      res.json({success,jwtData});
     } catch (error) {
       console.error(error.message);
-      res.status(500).send("Internal server Error");
+      success=false;
+      res.status(500).json("Internal server Error");
     }
   }
 );

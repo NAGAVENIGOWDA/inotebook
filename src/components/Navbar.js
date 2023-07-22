@@ -35,6 +35,8 @@ function Navbar() {
             </li>
           </ul>
         </div>
+        <Link className="btn btn-primary mx-3" to="/login" role="button">Login</Link>
+        <Link className="btn btn-primary" to="/signup" role="button">Sign Up</Link>
       </div>
     </nav>
   );
